@@ -1,13 +1,12 @@
 package goop
 
 import (
-	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"cloud.google.com/go/pubsub"
-	"google.golang.org/api/iterator"
+
+	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 )
 
@@ -117,29 +116,17 @@ func (g *Goop) CreateSubscription(topic *pubsub.Topic, subName string) (*pubsub.
 func (g *Goop) PullMessages(subName string, messageCallback func(msg *pubsub.Message, g *Goop) error) error {
 	// Get the subscription.
 	sub := g.Client.Subscription(subName)
-	it, err := sub.Pull(g.Context)
+
+	// Receive the message from Pub/Sub.
+	err := sub.Receive(g.Context, func(ctx context.Context, msg *pubsub.Message) {
+		// Run our callback function.
+		messageCallback(msg, g)
+
+		// Acknowledge receipt of the message.
+		msg.Ack()
+	})
 	if err != nil {
 		return err
-	}
-	defer it.Stop()
-
-	// Iterate over the messages.
-	for {
-		msg, err := it.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return err
-		}
-
-		// Run the callback function and ensure no errors occurred.
-		if err := messageCallback(msg, g); err != nil {
-			fmt.Fprintf(os.Stderr, "\nAn error occurred while pulling message (%s). Reason - %+v\n", msg.ID, err)
-			continue
-		}
-
-		msg.Done(true)
 	}
 
 	return nil
