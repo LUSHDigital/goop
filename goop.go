@@ -11,8 +11,8 @@ import (
 	"google.golang.org/api/option"
 )
 
-// PubSub - Wrapper for Pub/Sub.
-type PubSub struct {
+// Goop - Wrapper for Google Cloud Pub/Sub.
+type Goop struct {
 	Context context.Context
 	Project string
 	Opts    []option.ClientOption
@@ -23,14 +23,14 @@ type PubSub struct {
 //
 // Return:
 //   error - An error if it occurred.
-func (p *PubSub) CreateClient() error {
-	pubSubClient, pubSubErr := pubsub.NewClient(p.Context, p.Project, p.Opts...)
+func (g *Goop) CreateClient() error {
+	pubSubClient, pubSubErr := pubsub.NewClient(g.Context, g.Project, g.Opts...)
 	if pubSubErr != nil {
 		return pubSubErr
 	}
 
 	// Set the client.
-	p.Client = pubSubClient
+	g.Client = pubSubClient
 	return nil
 }
 
@@ -42,12 +42,12 @@ func (p *PubSub) CreateClient() error {
 // Return:
 //     *pubsub.Topic - Pointer to a Pub/Sub topic.
 //     error - An error if it occurred.
-func (p *PubSub) CreateTopic(topicName string) (*pubsub.Topic, error) {
+func (g *Goop) CreateTopic(topicName string) (*pubsub.Topic, error) {
 	fmt.Println("Creating Pub/Sub topic.")
 
 	// Check if the topic already exists.
-	topic := p.Client.Topic(topicName)
-	ok, err := topic.Exists(p.Context)
+	topic := g.Client.Topic(topicName)
+	ok, err := topic.Exists(g.Context)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (p *PubSub) CreateTopic(topicName string) (*pubsub.Topic, error) {
 	}
 
 	// Create a topic to subscribe to.
-	topic, err = p.Client.CreateTopic(p.Context, topicName)
+	topic, err = g.Client.CreateTopic(g.Context, topicName)
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +79,12 @@ func (p *PubSub) CreateTopic(topicName string) (*pubsub.Topic, error) {
 // Return:
 //     *pubsub.Topic - Pointer to a Pub/Sub subsription.
 //     error - An error if it occurred.
-func (p *PubSub) CreateSubscription(topic *pubsub.Topic, subName string) (*pubsub.Subscription, error) {
+func (g *Goop) CreateSubscription(topic *pubsub.Topic, subName string) (*pubsub.Subscription, error) {
 	fmt.Println("Creating Pub/Sub subscription.")
 
 	// Check if the subscription already exists.
-	sub := p.Client.Subscription(subName)
-	ok, err := sub.Exists(p.Context)
+	sub := g.Client.Subscription(subName)
+	ok, err := sub.Exists(g.Context)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (p *PubSub) CreateSubscription(topic *pubsub.Topic, subName string) (*pubsu
 	}
 
 	// Create a subscription.
-	sub, err = p.Client.CreateSubscription(p.Context, subName, topic, 20*time.Second, nil)
+	sub, err = g.Client.CreateSubscription(g.Context, subName, topic, 20*time.Second, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -109,15 +109,15 @@ func (p *PubSub) CreateSubscription(topic *pubsub.Topic, subName string) (*pubsu
 //
 // Params:
 //     subName string - The name of the subscription to use.
-//     messageCallback func(msg *pubsub.Message, p *PubSub) error - Callback
+//     messageCallback func(msg *pubsub.Message, g *Goop) error - Callback
 //     function to fire for each message pulled from the topic.
 //
 // Return:
 //     error - An error if it occurred.
-func (p *PubSub) PullMessages(subName string, messageCallback func(msg *pubsub.Message, p *PubSub) error) error {
+func (g *Goop) PullMessages(subName string, messageCallback func(msg *pubsub.Message, g *Goop) error) error {
 	// Get the subscription.
-	sub := p.Client.Subscription(subName)
-	it, err := sub.Pull(p.Context)
+	sub := g.Client.Subscription(subName)
+	it, err := sub.Pull(g.Context)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (p *PubSub) PullMessages(subName string, messageCallback func(msg *pubsub.M
 		}
 
 		// Run the callback function and ensure no errors occurred.
-		if err := messageCallback(msg, p); err != nil {
+		if err := messageCallback(msg, g); err != nil {
 			fmt.Fprintf(os.Stderr, "\nAn error occurred while pulling message (%s). Reason - %+v\n", msg.ID, err)
 			continue
 		}
@@ -153,17 +153,17 @@ func (p *PubSub) PullMessages(subName string, messageCallback func(msg *pubsub.M
 //
 // Return:
 //     error - An error if it occurred.
-func (p *PubSub) Publish(topicName, msg string) error {
+func (g *Goop) Publish(topicName, msg string) error {
 	// Get the topic.
-	t := p.Client.Topic(topicName)
+	t := g.Client.Topic(topicName)
 
 	// Publish the message.
-	result := t.Publish(p.Context, &pubsub.Message{
+	result := t.Publish(g.Context, &pubsub.Message{
 		Data: []byte(msg),
 	})
 
 	// Check the result for any errors.
-	_, err := result.Get(p.Context)
+	_, err := result.Get(g.Context)
 	if err != nil {
 		return err
 	}
@@ -181,18 +181,18 @@ func (p *PubSub) Publish(topicName, msg string) error {
 //
 // Return:
 //     error - An error if it occurred.
-func (p *PubSub) PublishWithAttributes(topicName, msg string, attributes map[string]string) error {
+func (g *Goop) PublishWithAttributes(topicName, msg string, attributes map[string]string) error {
 	// Get the topic.
-	t := p.Client.Topic(topicName)
+	t := g.Client.Topic(topicName)
 
 	// Publish the message.
-	result := t.Publish(p.Context, &pubsub.Message{
+	result := t.Publish(g.Context, &pubsub.Message{
 		Data:       []byte(msg),
 		Attributes: attributes,
 	})
 
 	// Check the result for any errors.
-	_, err := result.Get(p.Context)
+	_, err := result.Get(g.Context)
 	if err != nil {
 		return err
 	}

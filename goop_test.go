@@ -8,39 +8,39 @@ import (
 	"cloud.google.com/go/pubsub"
 )
 
-// ExamplePubSub_CreateClient - Example usage of the CreateClient function.
-func ExamplePubSub_CreateClient() {
+// ExampleGoop_CreateClient - Example usage of the CreateClient function.
+func ExampleGoop_CreateClient() {
 	ctx := context.Background()
 
 	// Create Pub/Sub wrapper.
-	pubSubWrapper := &PubSub{
+	g := &Goop{
 		Context: ctx,
 		Project: "project-id",
 	}
 
 	// Create the client.
-	if err := pubSubWrapper.CreateClient(); err != nil {
+	if err := g.CreateClient(); err != nil {
 		log.Fatalf("\nFailed to create Pub/Sub client. Reason - %+v\n", err)
 	}
 }
 
-// ExamplePubSub_CreateTopic - Example usage of the CreateTopic function.
-func ExamplePubSub_CreateTopic() {
+// ExampleGoop_CreateTopic - Example usage of the CreateTopic function.
+func ExampleGoop_CreateTopic() {
 	ctx := context.Background()
 
 	// Create Pub/Sub wrapper.
-	pubSubWrapper := &PubSub{
+	g := &Goop{
 		Context: ctx,
 		Project: "project-id",
 	}
 
 	// Create the client.
-	if err := pubSubWrapper.CreateClient(); err != nil {
+	if err := g.CreateClient(); err != nil {
 		log.Fatalf("\nFailed to create Pub/Sub client. Reason - %+v\n", err)
 	}
 
 	// Create the topic.
-	topic, err := pubSubWrapper.CreateTopic("my-awesome-topic")
+	topic, err := g.CreateTopic("my-awesome-topic")
 	if err != nil {
 		log.Fatalf("\nFailed to create Pub/Sub topic. Reason - %+v\n", err)
 	}
@@ -48,80 +48,80 @@ func ExamplePubSub_CreateTopic() {
 	_ = topic // TODO: use the topic.
 }
 
-// ExamplePubSub_CreateSubscription - Example usage of the CreateSubscription function.
-func ExamplePubSub_CreateSubscription() {
+// ExampleGoop_CreateSubscription - Example usage of the CreateSubscription function.
+func ExampleGoop_CreateSubscription() {
 	ctx := context.Background()
 
 	// Create Pub/Sub wrapper.
-	pubSubWrapper := &PubSub{
+	g := &Goop{
 		Context: ctx,
 		Project: "project-id",
 	}
 
 	// Create the client.
-	if err := pubSubWrapper.CreateClient(); err != nil {
+	if err := g.CreateClient(); err != nil {
 		log.Fatalf("\nFailed to create Pub/Sub client. Reason - %+v\n", err)
 	}
 
 	// Create the topic.
-	topic, err := pubSubWrapper.CreateTopic("my-awesome-topic")
+	topic, err := g.CreateTopic("my-awesome-topic")
 	if err != nil {
 		log.Fatalf("\nFailed to create Pub/Sub topic. Reason - %+v\n", err)
 	}
 
 	// Create the subscription.
-	_, subErr := pubSubWrapper.CreateSubscription(topic, "my-awesome-subscription")
+	_, subErr := g.CreateSubscription(topic, "my-awesome-subscription")
 	if subErr != nil {
 		log.Fatalf("\nFailed to create Pub/Sub subscription. Reason - %+v\n", err)
 	}
 }
 
-// ExamplePubSub_PullMessages - Example usage of the PullMessages function.
-func ExamplePubSub_PullMessages() {
+// ExampleGoop_PullMessages - Example usage of the PullMessages function.
+func ExampleGoop_PullMessages() {
 	ctx := context.Background()
 
 	// Create Pub/Sub wrapper.
-	pubSubWrapper := &PubSub{
+	g := &Goop{
 		Context: ctx,
 		Project: "project-id",
 	}
 
 	// Callback function.
-	myAwesomeCallback := func(msg *pubsub.Message, pubSub *PubSub) error {
+	myAwesomeCallback := func(msg *pubsub.Message, pubSub *Goop) error {
 		fmt.Printf("Got messages %+v", msg)
 
 		return nil
 	}
 
 	// Pull the messages.
-	if err := pubSubWrapper.PullMessages("my-awesome-subscription", myAwesomeCallback); err != nil {
+	if err := g.PullMessages("my-awesome-subscription", myAwesomeCallback); err != nil {
 		log.Fatalf("\nFailed to pull Pub/Sub messages. Reason - %+v\n", err)
 	}
 }
 
-// ExamplePubSub_Publish - Example usage of the Publish function.
-func ExamplePubSub_Publish() {
+// ExampleGoop_Publish - Example usage of the Publish function.
+func ExampleGoop_Publish() {
 	ctx := context.Background()
 
 	// Create Pub/Sub wrapper.
-	pubSubWrapper := &PubSub{
+	g := &Goop{
 		Context: ctx,
 		Project: "project-id",
 	}
 
 	// Publish the message.
-	err := pubSubWrapper.Publish("my-other-awesome-topic", "Hello world!")
+	err := g.Publish("my-other-awesome-topic", "Hello world!")
 	if err != nil {
 		log.Fatalf("\nFailed to publish Pub/Sub messages. Reason - %+v\n", err)
 	}
 }
 
-// ExamplePubSub_PublishWithAttributes - Example usage of the PublishWithAttributes function.
-func ExamplePubSub_PublishWithAttributes() {
+// ExampleGoop_PublishWithAttributes - Example usage of the PublishWithAttributes function.
+func ExampleGoop_PublishWithAttributes() {
 	ctx := context.Background()
 
 	// Create Pub/Sub wrapper.
-	pubSubWrapper := &PubSub{
+	g := &Goop{
 		Context: ctx,
 		Project: "project-id",
 	}
@@ -132,7 +132,7 @@ func ExamplePubSub_PublishWithAttributes() {
 	}
 
 	// Publish the message with attributes.
-	err := pubSubWrapper.PublishWithAttributes("my-other-awesome-topic", "Hello world!", messageAttributes)
+	err := g.PublishWithAttributes("my-other-awesome-topic", "Hello world!", messageAttributes)
 	if err != nil {
 		log.Fatalf("\nFailed to publish Pub/Sub messages. Reason - %+v\n", err)
 	}
