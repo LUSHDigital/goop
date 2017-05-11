@@ -2,6 +2,7 @@ package goop
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -120,7 +121,11 @@ func (g *Goop) PullMessages(subName string, messageCallback func(msg *pubsub.Mes
 	// Receive the message from Pub/Sub.
 	err := sub.Receive(g.Context, func(ctx context.Context, msg *pubsub.Message) {
 		// Run our callback function.
-		messageCallback(msg, g)
+		if err := messageCallback(msg, g); err != nil {
+			log.Printf("Could not process message: %#v", err)
+			msg.Nack()
+			return
+		}
 
 		// Acknowledge receipt of the message.
 		msg.Ack()
