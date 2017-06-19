@@ -96,7 +96,10 @@ func (g *Goop) CreateSubscription(topic *pubsub.Topic, subName string) (*pubsub.
 	}
 
 	// Create a subscription.
-	sub, err = g.Client.CreateSubscription(g.Context, subName, topic, 20*time.Second, nil)
+	sub, err = g.Client.CreateSubscription(g.Context, subName, pubsub.SubscriptionConfig{
+		Topic:       topic,
+		AckDeadline: 20 * time.Second,
+	})
 	if err != nil {
 		return nil, err
 	}
