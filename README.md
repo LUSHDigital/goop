@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/LUSHDigital/goop)](https://goreportcard.com/report/github.com/LUSHDigital/goop)
+
 # GOOP - GOOgle Pub/sub
 A Golang package for streamlining the usage of Google Cloud Pub/Sub.
 
