@@ -125,14 +125,12 @@ func (g *Goop) PullMessages(subName string, messageCallback func(msg *pubsub.Mes
 	err := sub.Receive(g.Context, func(ctx context.Context, msg *pubsub.Message) {
 		// Run our callback function.
 		if err := messageCallback(msg, g); err != nil {
-			log.Printf("Could not process message: %#v", err)
-			// Ack'ing all the time since there is no case
-			// where an invalid should be put back into the queue for re-delivery.
-			msg.Ack()
-			return
+			log.Printf("Could not process message: %s", err)
 		}
 
-		// Acknowledge receipt of the message.
+		// Acknowledge receipt of the message all the time since there is no
+		// case where an invalid message should be put back into the queue
+		// for re-delivery.
 		msg.Ack()
 	})
 	if err != nil {
